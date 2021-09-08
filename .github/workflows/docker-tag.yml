@@ -27,10 +27,13 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Get the version
+      id: tag
+      run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
     -
       name: Build and push
       uses: docker/build-push-action@v2
       with:
         context: .
         push: true
-        tags: dogbutcat/docker-mosdns:${GITHUB_REF##*/}
+        tags: dogbutcat/docker-mosdns:${{ steps.tag.outputs.VERSION }}
