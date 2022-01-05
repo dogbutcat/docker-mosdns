@@ -5,8 +5,18 @@ TEMPDIR="$(mktemp -d)"
 
 echo "Downloading latest configurations..."
 
-DOWNLOAD_LINK_GEOIP="https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat"
-DOWNLOAD_LINK_GEOSITE="https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat"
+RESOLVE_URL=${RESOLVE_URL:-"github.com"}
+DEFAULT_DNS=${DEFAULT_DNS:-"1.1.1.1"}
+IP=""
+
+DOWNLOAD_LINK_GEOIP=${DOWNLOAD_LINK_GEOIP:-"https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat"}
+DOWNLOAD_LINK_GEOSITE=${DOWNLOAD_LINK_GEOSITE:-"https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat"}
+
+resolve_ip(){
+    echo "Starting Resolving "${RESOLVE_URL}" Using DNS "${DEFAULT_DNS}
+    IP=$(dig +short ${RESOLVE_URL} @${DEFAULT_DNS})
+    echo "${RESOLVE_DNS} IP: "${IP}
+}
 
 download_geoip() {
     echo "Starting Download GEOIP: ${DOWNLOAD_LINK_GEOIP}"

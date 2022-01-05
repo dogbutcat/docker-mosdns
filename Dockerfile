@@ -25,6 +25,9 @@ RUN curl -sL $MOSDNS_URL | busybox unzip - \
 ENV SMARTDNS_RELEASE=Release35
 ENV SMARTDNS_URL https://github.com/pymumu/smartdns/releases/download/${SMARTDNS_RELEASE}/smartdns-x86_64
 
+ENV DOWNLOAD_LINK_GEOIP https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat
+ENV DOWNLOAD_LINK_GEOSITE https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat
+
 RUN curl -sL $SMARTDNS_URL -o smartdns \
 	&& chmod +x /opt/dns/smartdns
 
