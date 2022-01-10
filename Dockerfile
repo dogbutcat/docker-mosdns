@@ -28,8 +28,13 @@ ENV SMARTDNS_URL https://github.com/pymumu/smartdns/releases/download/${SMARTDNS
 ENV DOWNLOAD_LINK_GEOIP https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat
 ENV DOWNLOAD_LINK_GEOSITE https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat
 
+ENV ENABLE_WEBPROC=1
+
 RUN curl -sL $SMARTDNS_URL -o smartdns \
 	&& chmod +x /opt/dns/smartdns
+
+RUN curl -sL $DOWNLOAD_LINK_GEOIP -o ${WORKDIR}/geoip.dat
+RUN curl -sL $DOWNLOAD_LINK_GEOSITE -o ${WORKDIR}/geosite.dat
 
 COPY ./scripts /opt/dns/scripts
 COPY mosdns.yaml /opt/dns/config.yaml

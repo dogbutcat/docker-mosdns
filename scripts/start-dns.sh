@@ -3,11 +3,15 @@ set -e
 
 cd $WORKDIR
 
-./scripts/get-latest-info.sh
+update_geo_data(){
+    ./scripts/get-latest-info.sh
+}
 
 start_smartdns(){
     ./smartdns -c smartdns.conf -f &
     ./mosdns &
+    sleep 10
+    update_geo_data
 }
 
 kill_dns(){
