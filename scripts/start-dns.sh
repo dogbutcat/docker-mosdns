@@ -8,7 +8,7 @@ update_geo_data(){
 }
 
 start_smartdns(){
-    cp -f ./data/* . 2> /dev/null
+    cp -rf ./data/. . 2> /dev/null
     ./smartdns -c smartdns.conf -f &
     ./mosdns &
     sleep 10
