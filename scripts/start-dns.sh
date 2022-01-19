@@ -8,10 +8,11 @@ update_geo_data(){
 }
 
 start_smartdns(){
+    cp -f ./data/* . 2> /dev/null
     ./smartdns -c smartdns.conf -f &
     ./mosdns &
     sleep 10
-    update_geo_data
+    update_geo_data 2> /dev/null
 }
 
 kill_dns(){

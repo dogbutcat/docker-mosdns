@@ -50,7 +50,7 @@ download_geosite() {
 
 rename_new() {
     for DAT in 'geoip' 'geosite'; do
-        mv "${TEMPDIR}/$DAT.dat.new" "${WORKDIR}/$DAT.dat"
+        mv "${TEMPDIR}/$DAT.dat.new" "${WORKDIR}/data/$DAT.dat"
         # rm "${TEMPDIR}/$DAT.dat.new"
         rm "${TEMPDIR}/$DAT.dat.sha256sum.new"
     done
@@ -65,7 +65,7 @@ check_data(){
             'geosite') REMOTE_SUM=$(curl -L -s -H 'Cache-Control: no-cache' $DOWNLOAD_LINK_GEOSITE.sha256sum | sed 's/ .*//')
             ;;
         esac
-        LOCAL_SUM=$(sha256sum "${WORKDIR}/$DAT.dat"| sed 's/ .*//')
+        LOCAL_SUM=$(sha256sum "${WORKDIR}/data/$DAT.dat"| sed 's/ .*//')
         echo
         echo $(echo $DAT | tr 'a-z' 'A-Z'):
         echo -e "  REMOTE_SUM: "$REMOTE_SUM
@@ -94,3 +94,4 @@ main
 
 echo "Cleaning up..."
 rm -r "$TEMPDIR"
+exit 0
