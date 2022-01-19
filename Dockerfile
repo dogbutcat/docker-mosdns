@@ -14,7 +14,7 @@ RUN apk --no-cache add curl git bash unzip drill \
 WORKDIR /opt/dns
 
 ENV WORKDIR /opt/dns
-ENV MOSDNS_VERSION v2.2.2
+ENV MOSDNS_VERSION v3.0.0
 ENV MOSDNS_URL https://github.com/IrineSistiana/mosdns/releases/download/${MOSDNS_VERSION}/mosdns-linux-amd64.zip
 
 RUN curl -sL $MOSDNS_URL | busybox unzip - \
@@ -33,8 +33,11 @@ ENV ENABLE_WEBPROC=1
 RUN curl -sL $SMARTDNS_URL -o smartdns \
 	&& chmod +x /opt/dns/smartdns
 
-RUN curl -sL $DOWNLOAD_LINK_GEOIP -o ${WORKDIR}/geoip.dat
-RUN curl -sL $DOWNLOAD_LINK_GEOSITE -o ${WORKDIR}/geosite.dat
+RUN mkdir ${WORKDIR}/data
+
+RUN curl -sL $DOWNLOAD_LINK_GEOIP -o ${WORKDIR}/data/geoip.dat
+RUN curl -sL $DOWNLOAD_LINK_GEOSITE -o ${WORKDIR}/data/geosite.dat
+RUN cp ${WORKDIR}/data/* ${WORKDIR}/
 
 COPY ./scripts /opt/dns/scripts
 COPY mosdns.yaml /opt/dns/config.yaml

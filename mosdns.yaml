@@ -21,7 +21,7 @@ plugin:
             - 'match_ad_domain'
           exec:
             - _block_with_nxdomain
-            - _end
+            - _return
         - 'sequence_local'
 
   - tag: 'sequence_exclude_domain'
@@ -32,7 +32,7 @@ plugin:
             - 'match_exclude_domain'
           exec:
             - 'sequence_local' # goto local plugin
-            - _end
+            - _return
         - 'sequence_remote'
 
   - tag: 'sequence_remote'    # 分流路由
@@ -53,7 +53,7 @@ plugin:
             - if:
                 - _response_rcode_success
               exec:
-                - _end
+                - _return
         - 'sequence_local'
 
   - tag: 'sequence_local'    # 分流路由
@@ -61,7 +61,7 @@ plugin:
     args:
       exec:
         - 'forward_smartdns'
-        - _end
+        - _return
 
   ################ 查询过滤器 #################
 
@@ -169,7 +169,6 @@ plugin:
           idle_timeout: 10
           # max_conns: 200
           # insecure_skip_verify: false    # 禁用 TLS 验证。适用于 DoT，DoH 协议。
-      timeout: 5          # 请求超时时间。单位: 秒。默认 5。
       ca: [ ]             # 用于 TLS 验证的 CA 证书路径。是数组，可填入多个证书。为空默认使用系统证书池。
 
   - tag: 'forward_remote' # 转发至远程服务器
@@ -184,13 +183,11 @@ plugin:
           idle_timeout: 10
           # max_conns: 200
           # insecure_skip_verify: false    # 禁用 TLS 验证。适用于 DoT，DoH 协议。
-      timeout: 5          # 请求超时时间。单位: 秒。默认 5。
       ca: [ ]             # 用于 TLS 验证的 CA 证书路径。是数组，可填入多个证书。为空默认使用系统证书池。
 
   - tag: 'forward_google'
     type: fast_forward
     args:
-      timeout: 5
       upstream:
         - addr: 'https://dns.google/dns-query'  # 必需。服务器地址。
           dial_addr: '8.8.8.8:443'
@@ -214,7 +211,6 @@ plugin:
       server:
         - protocol: 'tcp'          # 必需。服务器协议。可以是 `udp`, `tcp`, `dot/tls`, `doh/https`, `http`。
           addr: ':53'             # 必需。服务器监听地址。省略 IP 会监听所有地址(包括 IPv6)。
-          timeout: 5               # 请求处理超时时间。单位: 秒。默认: 5。
           idle_timeout: 10         # 连接复用空连接超时时间。单位: 秒。默认: 10。适用于除了 `udp` 以外的协议。
           #cert: '' # `dot`, `doh` 必需。PEM 格式的证书文件。
           #key: ''   # `dot`, `doh` 必需。PEM 格式的密钥文件。
@@ -222,4 +218,3 @@ plugin:
           #get_user_ip_from_header: 'X-Forwarded-For' # 适用于 `doh`, `http`。尝试从反向代理的 HTTP 头获取用户 IP。
         - protocol: 'udp'          # 必需。服务器协议。可以是 `udp`, `tcp`, `dot/tls`, `doh/https`, `http`。
           addr: ':53'             # 必需。服务器监听地址。省略 IP 会监听所有地址(包括 IPv6)。
-          timeout: 5               # 请求处理超时时间。单位: 秒。默认: 5。
