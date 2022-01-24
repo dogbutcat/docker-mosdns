@@ -3,8 +3,8 @@
 cd $WORKDIR
 
 if [[ $ENABLE_WEBPROC == 1 ]]; then
-    webproc -c ./config.yaml -c ./smartdns.conf -- ./scripts/start-dns.sh
+    webproc -c ./config.yaml -c ./smartdns.conf -- /usr/bin/supervisord
 else
     echo "starting without webproc..."
-    ./scripts/start-dns.sh
+    /usr/bin/supervisord
 fi
