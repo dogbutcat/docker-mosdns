@@ -61,9 +61,14 @@ serverurl=http://0.0.0.0:9001       ; use an http:// url to specify an inet sock
 supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface\n\
 [supervisord]\n\
 nodaemon=true\n\
+user=root\n\
 [include]\n\
 files = /etc/supervisor.d/*.ini\n\
 ' > /etc/supervisord.conf
+
+ENV SUPERVISOR_USER=user
+# no pass for default
+ENV SUPERVISOR_PASS=
 
 COPY ./conf /etc/supervisor.d/
 COPY ./scripts /opt/dns/scripts

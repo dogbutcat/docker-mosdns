@@ -10,8 +10,10 @@ stop:
 	fi
 
 test: build
-	docker run --rm -v $(CUR_PATH)/data:/opt/dns/data \
-		-v $(CUR_PATH)/conf/:/etc/supervisor.d/ \
+	docker run --rm \
 		-d --name test_mosdns \
 		-p 154:53/tcp -p 54:53/udp -p 8899:8080 -p 9001:9001 \
+		-v $(CUR_PATH)/data:/opt/dns/data \
+		-v $(CUR_PATH)/conf/:/etc/supervisor.d/ \
 		docker-mosdns
+#		-e SUPERVISOR_USER=base -e SUPERVISOR_PASS=esab \
