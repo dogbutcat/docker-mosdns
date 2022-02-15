@@ -4,7 +4,7 @@ set -e
 cd $WORKDIR
 
 update_geo_data(){
-    ./scripts/get-latest-info.sh
+    ./scripts/get-latest-info.sh 2> /dev/null
 }
 
 start_smartdns(){
@@ -12,7 +12,7 @@ start_smartdns(){
     # ./smartdns -c smartdns.conf -f &
     ./mosdns 2>&1 & # mosdns use os.Stderr writing log...
     sleep 2
-    update_geo_data 2> /dev/null
+    update_geo_data
 }
 
 kill_dns(){
