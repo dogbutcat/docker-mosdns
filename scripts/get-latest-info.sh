@@ -22,14 +22,17 @@ download_geoip() {
     echo "Starting Download GEOIP: ${DOWNLOAD_LINK_GEOIP}"
     if ! curl --progress-bar -L -H 'Cache-Control: no-cache' -o "${TEMPDIR}/geoip.dat.new" "$DOWNLOAD_LINK_GEOIP"; then
         echo 'error: Download failed! Please check your network or try again.'
+        exit 0
     fi
     if ! curl -L -H 'Cache-Control: no-cache' -o "${TEMPDIR}/geoip.dat.sha256sum.new" "$DOWNLOAD_LINK_GEOIP.sha256sum"; then
         echo 'error: Download failed! Please check your network or try again.'
+        exit 0
     fi
     SUM="$(sha256sum ${TEMPDIR}/geoip.dat.new | sed 's/ .*//')"
     CHECKSUM="$(sed 's/ .*//' ${TEMPDIR}/geoip.dat.sha256sum.new)"
     if [[ "$SUM" != "$CHECKSUM" ]]; then
         echo 'error: Checksum failed! Please check your network or try again.'
+        exit 0
     fi
 }
 
@@ -37,14 +40,17 @@ download_geosite() {
     echo "Starting Download GEOSITE: ${DOWNLOAD_LINK_GEOSITE}"
     if ! curl --progress-bar -L -H 'Cache-Control: no-cache' -o "${TEMPDIR}/geosite.dat.new" "$DOWNLOAD_LINK_GEOSITE"; then
         echo 'error: Download failed! Please check your network or try again.'
+        exit 0
     fi
     if ! curl -L -H 'Cache-Control: no-cache' -o "${TEMPDIR}/geosite.dat.sha256sum.new" "$DOWNLOAD_LINK_GEOSITE.sha256sum"; then
         echo 'error: Download failed! Please check your network or try again.'
+        exit 0
     fi
     SUM="$(sha256sum ${TEMPDIR}/geosite.dat.new | sed 's/ .*//')"
     CHECKSUM="$(sed 's/ .*//' ${TEMPDIR}/geosite.dat.sha256sum.new)"
     if [[ "$SUM" != "$CHECKSUM" ]]; then
         echo 'error: Checksum failed! Please check your network or try again.'
+        exit 0
     fi
 }
 
