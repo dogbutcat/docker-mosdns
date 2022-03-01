@@ -14,7 +14,7 @@ RUN apk --no-cache add curl git bash unzip drill \
 WORKDIR /opt/dns
 
 ENV WORKDIR /opt/dns
-ENV MOSDNS_VERSION v3.2.0
+ENV MOSDNS_VERSION v3.3.0
 ENV MOSDNS_URL https://github.com/IrineSistiana/mosdns/releases/download/${MOSDNS_VERSION}/mosdns-linux-amd64.zip
 
 RUN curl -sL $MOSDNS_URL | busybox unzip - \
