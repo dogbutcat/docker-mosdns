@@ -16,7 +16,7 @@ start_smartdns(){
 }
 
 kill_dns(){
-    # kill -SIGTERM $(ps -e|grep smartdns|grep -v grep|awk '{print $1}')
+    ./scripts/get-latest-info.sh 2> /dev/null
     echo
     echo "Killing dns "$(ps -e|grep mosdns|grep -v grep|awk '{print $1}')
     kill -SIGTERM $(ps -e|grep mosdns|grep -v grep|awk '{print $1}')
