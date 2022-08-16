@@ -10,13 +10,13 @@ update_geo_data(){
 start_smartdns(){
     cp -rf ./data/. . 2> /dev/null
     # ./smartdns -c smartdns.conf -f &
-    ./mosdns 2>&1 & # mosdns use os.Stderr writing log...
-    sleep 2
+    ./mosdns start 2>&1 & # mosdns use os.Stderr writing log...
+    sleep 5
     update_geo_data
 }
 
 kill_dns(){
-    ./scripts/get-latest-info.sh 2> /dev/null
+    update_geo_data
     echo
     echo "Killing dns "$(ps -e|grep mosdns|grep -v grep|awk '{print $1}')
     kill -SIGTERM $(ps -e|grep mosdns|grep -v grep|awk '{print $1}')

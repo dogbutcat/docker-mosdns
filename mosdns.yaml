@@ -2,92 +2,42 @@
 log:
   level: info
   file: ""
-library: []
-plugin:
 
-  - tag: 'encrypt_dns'
-    type: sequence
-    args:
-      exec:
-        - 'check_black_list'
+# 数据源设置
+data_providers:
+  - tag: geosite        # 数据源的 tag。由用户自由设定。不能重复。
+    file: "./geosite.dat"     # 文件位置
+    auto_reload: true # 文件有变化时是否自动重载。
+  - tag: geoip        # 数据源的 tag。由用户自由设定。不能重复。
+    file: "./geoip.dat"     # 文件位置
+    auto_reload: true # 文件有变化时是否自动重载。
 
-  ################ 序列 #################
-
-  - tag: 'check_black_list'
-    type: sequence
-    args:
-      exec:
-        - if:
-            - 'match_ad_domain'
-          exec:
-            - _block_with_nxdomain
-            - _return
-        - 'sequence_local'
-
-  - tag: 'sequence_exclude_domain'
-    type: sequence
-    args:
-      exec:
-        - if:
-            - 'match_exclude_domain'
-          exec:
-            - 'sequence_local' # goto local plugin
-            - _return
-        - 'sequence_remote'
-
-  - tag: 'sequence_remote'    # 分流路由
-    type: sequence
-    args:
-      exec:
-        - if:
-            - 'match_non_local_domain'
-          exec:
-            - primary:
-                - 'forward_remote'
-              secondary:
-                - 'forward_google'
-              stat_length: 10   # 常规 fallback 统计长度。默认 0，禁用常规 fallback。可省略。
-              threshold: 5      # 常规 fallback 触发阈值。不可大于统计长度。默认 0。可省略。
-              fast_fallback: 200    # 快速 fallback 触发阈值。单位: 毫秒。默认: 0，禁用快速 fallback。可省略。
-              always_standby: true # 快速 fallback secondary 始终待命。可省略。
-            - if:
-                - _response_rcode_success
-              exec:
-                - _return
-        - 'sequence_local'
-
-  - tag: 'sequence_local'    # 分流路由
-    type: sequence
-    args:
-      exec:
-        - 'forward_smartdns'
-        - _return
+plugins:
 
   ################ 查询过滤器 #################
-
   - tag: 'match_local_domain'   # 匹配本地域名
     type: query_matcher
     args:
       domain:
-        - "ext:./geosite.dat:cn"
+        - "provider:geosite:cn"
 
   - tag: 'match_non_local_domain'   # 匹配非本地域名
     type: query_matcher
     args:
       domain:
-        - "ext:./geosite.dat:geolocation-!cn" # include google and apple domain https://github.com/Loyalsoldier/v2ray-rules-dat#geositedat
+        - "provider:geosite:geolocation-!cn" # include google and apple domain https://github.com/Loyalsoldier/v2ray-rules-dat#geositedat
 
   - tag: 'match_ad_domain'   # 匹配广告域名
     type: query_matcher
     args:
       domain:
-        - "ext:./geosite.dat:category-ads-all"
+        - "provider:geosite:category-ads-all"
 
   - tag: 'match_exclude_domain'   # 额外匹配
     type: query_matcher
     args:
       domain:
-        - "ext:./geosite.dat:apple-cn"
+        - "provider:geosite:apple-cn"
       # client_ip:
       #   - '192.168.1.1/24'
 
@@ -98,9 +48,9 @@ plugin:
     args:
       rcode: [1, 2, 3]
       ip:
-        - "ext:./geoip.dat:cn"
+        - "provider:geoip:cn"
       cname:
-        - "ext:./geosite.dat:cn"
+        - "provider:geosite:cn"
       # logical_and: false
 
   - tag: 'ecs_manual'
@@ -113,9 +63,6 @@ plugin:
       force_overwrite: false  # 如果请求已有 ECS，是否强制覆盖。
       # mask4: 24               # 用于 ipv4 地址的掩码。默认: 24。
       # mask6: 48               # 用于 ipv6 地址的掩码。默认: 48。
-
-  - tag: 'dedup'
-    type: 'single_flight'
 
   ################# 功能性插件 ################
 
@@ -142,7 +89,6 @@ plugin:
         - '9.9.9.9'
         - '114.114.114.114'
       timeout: 5          # 请求超时时间，单位: 秒。
-      fastest_ip: false   # 最快 IP 模式。测试所有解析到的 IP 的延时，仅返回延时最低的。(注意: 启用这个功能会导致 DNS 响应时间变长。)
       insecure_skip_verify: false  # 禁用 TLS 身份验证。
 
   - tag: 'forward_114' # 转发至本地服务器
@@ -197,24 +143,76 @@ plugin:
           # insecure_skip_verify: false    # 禁用 TLS 验证。适用于 DoT，DoH 协议。
       ca: [ ]             # 用于 TLS 验证的 CA 证书路径。是数组，可填入多个证书。为空默认使用系统证书池。
 
+  ################ 序列 #################
+  - tag: 'sequence_local'    # 分流路由
+    type: sequence
+    args:
+      exec:
+        - 'forward_smartdns'
+        - _return
+
+  - tag: 'sequence_remote'    # 分流路由
+    type: sequence
+    args:
+      exec:
+        - if: 'match_non_local_domain'
+          exec:
+            - primary:
+                - 'forward_remote'
+              secondary:
+                - 'forward_google'
+              stat_length: 10   # 常规 fallback 统计长度。默认 0，禁用常规 fallback。可省略。
+              threshold: 5      # 常规 fallback 触发阈值。不可大于统计长度。默认 0。可省略。
+              fast_fallback: 200    # 快速 fallback 触发阈值。单位: 毫秒。默认: 0，禁用快速 fallback。可省略。
+              always_standby: true # 快速 fallback secondary 始终待命。可省略。
+            - if: '[_response_valid_answer]'
+              exec:
+                - _return
+        - 'sequence_local'
+
+  - tag: 'sequence_exclude_domain'
+    type: sequence
+    args:
+      exec:
+        - if: 'match_exclude_domain'
+          exec:
+            - 'sequence_local' # goto local plugin
+            - _return
+        - 'sequence_remote'
+
+  - tag: 'check_black_list'
+    type: sequence
+    args:
+      exec:
+        - if: 'match_ad_domain'
+          exec:
+          # _drop_response: 丢弃已存在的应答。
+          # _new_empty_response: 生成 Rcode 为 0 的空应答。(模拟域名存在但没有所请求类型的记录)
+          # _new_servfail_response: 生成 Rcode 为 2 (SERVFAIL: 服务器失败)应答。
+          # _new_nxdomain_response: 生成 Rcode 为 3 (NXDOMAIN: 域名不存在)应答。
+            - _new_nxdomain_response
+            - _return
+        - 'cache'
+        - 'sequence_local'
+
+  - tag: 'encrypt_dns'
+    type: sequence
+    args:
+      exec:
+        - 'ecs_manual'
+        - 'check_black_list'
+
   ################# 启动服务器 ################
 
-  - tag: 'main_server'
-    type: 'server'
-    args:
-      entry:
-        - 'ecs_manual'
-        - 'dedup'
-        - 'cache'
-        - 'encrypt_dns'
-      max_concurrent_queries: 0  # 插件最大并发处理请求数。默认 0 代表无限制。
-      server:
-        - protocol: 'tcp'          # 必需。服务器协议。可以是 `udp`, `tcp`, `dot/tls`, `doh/https`, `http`。
-          addr: ':53'             # 必需。服务器监听地址。省略 IP 会监听所有地址(包括 IPv6)。
-          idle_timeout: 10         # 连接复用空连接超时时间。单位: 秒。默认: 10。适用于除了 `udp` 以外的协议。
-          #cert: '' # `dot`, `doh` 必需。PEM 格式的证书文件。
-          #key: ''   # `dot`, `doh` 必需。PEM 格式的密钥文件。
-          #url_path: '/dns-query'   # url 路径。适用于 `doh`, `http`。如果为空，则任意路径的请求都能被处理。
-          #get_user_ip_from_header: 'X-Forwarded-For' # 适用于 `doh`, `http`。尝试从反向代理的 HTTP 头获取用户 IP。
-        - protocol: 'udp'          # 必需。服务器协议。可以是 `udp`, `tcp`, `dot/tls`, `doh/https`, `http`。
-          addr: ':53'             # 必需。服务器监听地址。省略 IP 会监听所有地址(包括 IPv6)。
+servers:
+  - exec: encrypt_dns
+    listeners:
+      - protocol: 'tcp'          # 必需。服务器协议。可以是 `udp`, `tcp`, `dot/tls`, `doh/https`, `http`。
+        addr: ':53'             # 必需。服务器监听地址。省略 IP 会监听所有地址(包括 IPv6)。
+        idle_timeout: 10         # 连接复用空连接超时时间。单位: 秒。默认: 10。适用于除了 `udp` 以外的协议。
+        #cert: '' # `dot`, `doh` 必需。PEM 格式的证书文件。
+        #key: ''   # `dot`, `doh` 必需。PEM 格式的密钥文件。
+        #url_path: '/dns-query'   # url 路径。适用于 `doh`, `http`。如果为空，则任意路径的请求都能被处理。
+        #get_user_ip_from_header: 'X-Forwarded-For' # 适用于 `doh`, `http`。尝试从反向代理的 HTTP 头获取用户 IP。
+      - protocol: 'udp'          # 必需。服务器协议。可以是 `udp`, `tcp`, `dot/tls`, `doh/https`, `http`。
+        addr: ':53'             # 必需。服务器监听地址。省略 IP 会监听所有地址(包括 IPv6)。
