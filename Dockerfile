@@ -14,7 +14,7 @@ RUN apk --no-cache add curl git bash unzip drill \
 WORKDIR /opt/dns
 
 ENV WORKDIR /opt/dns
-ENV MOSDNS_VERSION v4.1.9
+ENV MOSDNS_VERSION v4.5.3
 ENV MOSDNS_URL https://github.com/IrineSistiana/mosdns/releases/download/${MOSDNS_VERSION}/mosdns-linux-amd64.zip
 
 RUN curl -sL $MOSDNS_URL | busybox unzip - \
@@ -22,7 +22,7 @@ RUN curl -sL $MOSDNS_URL | busybox unzip - \
 
 # RUN apk del .build-deps
 
-ENV SMARTDNS_RELEASE=Release37
+ENV SMARTDNS_RELEASE=Release38.1
 ENV SMARTDNS_URL https://github.com/pymumu/smartdns/releases/download/${SMARTDNS_RELEASE}/smartdns-x86_64
 
 ENV DOWNLOAD_LINK_GEOIP https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat
