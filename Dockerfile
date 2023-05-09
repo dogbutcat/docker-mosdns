@@ -22,7 +22,7 @@ RUN curl -sL $MOSDNS_URL | busybox unzip - \
 
 # RUN apk del .build-deps
 
-ENV SMARTDNS_RELEASE=Release38.1
+ENV SMARTDNS_RELEASE=Release42
 ENV SMARTDNS_URL https://github.com/pymumu/smartdns/releases/download/${SMARTDNS_RELEASE}/smartdns-x86_64
 
 ENV DOWNLOAD_LINK_GEOIP https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat
